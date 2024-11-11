@@ -1,0 +1,9 @@
+port: "8000"
+
+db:
+  username: "olmosbek"
+  host: "localhost"
+  ssl:
+    mode: "disable"
+  port: "5434"
+  name: "todo-app-db"
