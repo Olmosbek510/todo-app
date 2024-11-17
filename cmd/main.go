@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"github.com/Olmosbek510/todo-app"
 	"github.com/Olmosbek510/todo-app/pkg/handler"
 	"github.com/Olmosbek510/todo-app/pkg/repository"
@@ -10,10 +12,13 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
-	logrus.SetFormatter(new(logrus.JSONFormatter))
+	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetFormatter(&SimpleFormatter{})
 	if err := initConfig(); err != nil {
 		logrus.Fatalf("error initializing configs: %s", err.Error())
 	}
@@ -38,14 +43,40 @@ func main() {
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 	srv := new(todo.Server)
-	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
-		logrus.Fatalf("error occured while running http server: %s",
-			err.Error())
+
+	go func() {
+		if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
+			logrus.Fatalf("error occured while running http server: %s",
+				err.Error())
+		}
+	}()
+
+	logrus.Println("TodoApp Started")
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	logrus.Println("TodoApp Shutting Down")
+
+	if err := srv.ShutDown(context.Background()); err != nil {
+		logrus.Errorf("error occurred on server shutting down: %s", err.Error())
 	}
+	if err := db.Close(); err != nil {
+		logrus.Errorf("error occurred on server database connection close: %s", err.Error())
+	}
+
 }
 
 func initConfig() error {
 	viper.AddConfigPath("configs")
 	viper.SetConfigName("config")
 	return viper.ReadInConfig()
+}
+
+type SimpleFormatter struct{}
+
+func (f *SimpleFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+	log := fmt.Sprintf("[%s] %s: %s\n", entry.Time.Format("2006-01-02 15:04:05"), entry.Level, entry.Message)
+	return []byte(log), nil
 }

@@ -60,7 +60,7 @@ func (s *AuthService) GenerateToken(username string, password string) (string, e
 	return token.SignedString([]byte(signingKey))
 }
 
-func NewAuthService(repo *repository.Repository) *AuthService {
+func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 

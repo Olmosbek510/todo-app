@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/Olmosbek510/todo-app"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -30,11 +31,11 @@ type signInInput struct {
 
 func (h *Handler) signIn(c *gin.Context) {
 	var input signInInput
-
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
+	logrus.Info("Request body:", input)
 	token, err := h.services.Authorization.GenerateToken(input.Username, input.Password)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
