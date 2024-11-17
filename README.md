@@ -69,5 +69,6 @@ Contributions are what make the open-source community such an amazing place to l
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
-Your Name – [@Olmos_Urazboev](https://telegram.org/Olmos_Urazboev) - @Olmos_Urazboev
+Olmosbek - [olmosbek_urazboev@epam.com](https://telegram.org/Olmos_Urazboev)
+
 Project Link: [https://github.com/Olmosbek510/todo-app](https://github.com/Olmosbek510/todo_app)
